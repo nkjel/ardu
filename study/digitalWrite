@@ -1,0 +1,66 @@
+//10ms 를 0~10단계로 쪼개기
+//가장 밝음 = brightness = 10 , 
+//가장 어두움 = brightness = 0
+ 
+#define LEDPIN 8
+#define SPEED 115200
+#define MAX 10
+#define MIN 0
+unsigned int brightness = 0;
+unsigned int digit =1; //자리수 
+int cnt = 0;
+int i = 0;
+char str[10];
+char temp = 0;
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(LEDPIN,OUTPUT);
+  Serial.begin(SPEED);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+
+  while(Serial.available()){
+    temp = Serial.read();
+    Serial.print("temp : ");
+    Serial.println(temp);
+    if(temp=='\n'){
+      str[cnt] = '\0';
+      break;
+    }
+    str[cnt] = temp;
+    cnt++;
+  }//END SEIRAL
+  
+  if(cnt){ //시리얼 입력 값이 있으면 형변환 
+      Serial.print("cnt : ");
+      Serial.println(cnt);
+      brightness = 0;
+      digit = 1;
+      for(i=cnt-1;i>=0;i--){
+        brightness = brightness+((str[i]-48)*digit);
+        digit*=10;
+      }
+      
+      cnt = 0;
+      Serial.print("brightness : ");
+      Serial.println(brightness);
+      if(brightness>MAX){
+        brightness = MAX;
+        Serial.println("BRIGHTNESS OVER");
+      }
+      else if (brightness<MIN){
+        brightness = MIN;
+        Serial.println("BRIGHTNESS UNDER");
+      }
+  }
+  
+  digitalWrite(LEDPIN,HIGH);
+  delay(brightness);
+  digitalWrite(LEDPIN,LOW);
+  delay(MAX-brightness);
+  }
+  
