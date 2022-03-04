@@ -24,8 +24,9 @@ int mod = 0; //0은 일반 , 1은 홀수
 int idx = 0;
 int selection = 0;
 bool button_one_clicked = false;
-bool mod_changed = false;
+bool reset_btn_clicked = false;
 
+unsigned long reset_btn_click_time = 0;
 
 void setup() {
   // put your setup code here, to run once:
@@ -46,22 +47,25 @@ void ledClear(){
 }
 
 void buttonOneClicked(){
-  
-  if (!mod_changed){
-    clickTime = millis();
-    mod_changed = true;
-    ledClear();
-    digitalWrite(LEDRIGHT[0],HIGH);
+  //여기서 더블클릭을 판별하면
+  //버튼이 두 번 눌려야 판별 가능 
+  //소프트웨어 폴링 방법 
+  //아니면 타이머 인터럽트를 만들어야
+  if (!reset_btn_clicked){
+    reset_btn_click_time = millis();
+    reset_btn_clicked = true;
+    //ledClear();
+    //digitalWrite(LEDRIGHT[0],HIGH);
     Serial.println("moood");
   }
   else {
-    unsigned int two_click = millis();
+    //unsigned long two_click = millis();
     Serial.println(two_click);
-    if((two_click - clickTime)<1000){
+    //if((two_click - reset_btn_click_time)<500){
       mod = (mod+1)%2;
       idx = 0;
-    }
-    mod_changed = false;
+      reset_btn_clicked = false;
+    //}
   }
 }
 
@@ -82,5 +86,17 @@ void buttonTwoClicked(){
 
 void loop() {
   // put your main code here, to run repeatedly:
+  
+  unsigned long loop_time = 0;
+ 
+  if(reset_btn_clicked){
+    loop_time = millis();
+    unsigned long timeInterval = loop_time - reset_btn_click_time;
+    if (timeInterval >200){
+       ledClear();
+       digitalWrite(LEDRIGHT[0],HIGH);
+       reset_btn_clicked = false;
+    }
+  }
 
 }
